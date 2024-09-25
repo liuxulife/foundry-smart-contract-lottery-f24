@@ -38,12 +38,13 @@ contract RaffleTest is Test, CodeConstants {
         gasLane = config.gasLane;
         callbackGasLimit = config.callbackGasLimit;
         subscriptionId = config.subscriptionId;
-        
 
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 
-    /** Header Raffle */
+    /**
+     * Header Raffle
+     */
     ////////////////////
 
     function testRaffleInitializesInOpenState() public view {
@@ -94,7 +95,9 @@ contract RaffleTest is Test, CodeConstants {
         raffle.enterRaffle{value: entranceFee}();
     }
 
-    /** Header CheckUp */
+    /**
+     * Header CheckUp
+     */
     ////////////////////
 
     function testCheckUpReturnsFalseIfItHasNoBalance() public {
@@ -103,7 +106,7 @@ contract RaffleTest is Test, CodeConstants {
         vm.roll(block.number + 1);
 
         // act
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
 
         // assert
         assert(!upkeepNeeded);
@@ -116,11 +119,13 @@ contract RaffleTest is Test, CodeConstants {
         vm.roll(block.number + 1);
         raffle.performUpkeep("");
 
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
         assert(!upkeepNeeded);
     }
 
-    /** Header PerformUp */
+    /**
+     * Header PerformUp
+     */
     ////////////////////
 
     function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public {
@@ -147,12 +152,7 @@ contract RaffleTest is Test, CodeConstants {
 
         // Act
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Raffle.Raffle__UpKeepNotNeeded.selector,
-                current_Balance,
-                numPlayers,
-                rState
-            )
+            abi.encodeWithSelector(Raffle.Raffle__UpKeepNotNeeded.selector, current_Balance, numPlayers, rState)
         );
         raffle.performUpkeep("");
     }
@@ -166,10 +166,7 @@ contract RaffleTest is Test, CodeConstants {
     }
 
     // What if we need to get data from emitted events in our tests?
-    function testPerformUpkeepUpdateRaffleStateAndEmitRequestId()
-        public
-        enterRaffle
-    {
+    function testPerformUpkeepUpdateRaffleStateAndEmitRequestId() public enterRaffle {
         vm.recordLogs();
         raffle.performUpkeep("");
         Vm.Log[] memory entries = vm.getRecordedLogs();
@@ -178,10 +175,12 @@ contract RaffleTest is Test, CodeConstants {
         Raffle.RaffleState raffleState = raffle.getRaffleState();
 
         assert(uint256(requestId) > 0);
-        assert(uint(raffleState) == 1);
+        assert(uint256(raffleState) == 1);
     }
 
-    /** Header FulfuilRandomWords */
+    /**
+     * Header FulfuilRandomWords
+     */
     ////////////////////
 
     modifier skipFork() {
@@ -191,9 +190,7 @@ contract RaffleTest is Test, CodeConstants {
         _;
     }
 
-    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(
-        uint256 requestId
-    ) public enterRaffle skipFork {
+    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 requestId) public enterRaffle skipFork {
         vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
         VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(
             /* 0,*/
@@ -202,11 +199,7 @@ contract RaffleTest is Test, CodeConstants {
         );
     }
 
-    function testFulfillrandowmWordsPikckAWinnerResetsAndSendMoney()
-        public
-        enterRaffle
-        skipFork
-    {
+    function testFulfillrandowmWordsPikckAWinnerResetsAndSendMoney() public enterRaffle skipFork {
         address expectedWinner = address(1);
         // Arrange
         uint256 additionalEntrants = 3;

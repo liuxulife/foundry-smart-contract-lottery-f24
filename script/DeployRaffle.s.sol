@@ -21,16 +21,11 @@ contract DeployRaffle is Script {
             // create subscription
             CreateSubscription createSubscription = new CreateSubscription();
             address account = config.account;
-            (config.subscriptionId, config.vrfCoordinator) = createSubscription
-                .createSubscription(config.vrfCoordinator, account);
+            (config.subscriptionId, config.vrfCoordinator) =
+                createSubscription.createSubscription(config.vrfCoordinator, account);
             // Fund it
             FundSubscription fundSubcription = new FundSubscription();
-            fundSubcription.fundSubScription(
-                config.vrfCoordinator,
-                config.subscriptionId,
-                config.link,
-                config.account
-            );
+            fundSubcription.fundSubScription(config.vrfCoordinator, config.subscriptionId, config.link, config.account);
         }
 
         vm.startBroadcast(config.account);
@@ -46,12 +41,7 @@ contract DeployRaffle is Script {
 
         // Add consumer
         AddConsumer addConsumer = new AddConsumer();
-        addConsumer.addConsumer(
-            address(raffle),
-            config.vrfCoordinator,
-            config.subscriptionId,
-            config.account
-        );
+        addConsumer.addConsumer(address(raffle), config.vrfCoordinator, config.subscriptionId, config.account);
 
         return (raffle, helperConfig);
     }
